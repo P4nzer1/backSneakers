@@ -29,45 +29,44 @@ exports.register = async (req, res) => {
 
 
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
+    const { email, password } = req.body;
+  
+    try {
       const user = await User.findOne({ email });
       if (!user) {
-          return res.status(401).json({ message: 'Invalid credentials' });
+        return res.status(401).json({ message: 'Invalid credentials' });
       }
-
-      console.log('Password from DB:', user.password);
-      console.log('Password from request:', password);
-
-      // Сравнение пароля с хешем из базы данных
+  
       const isMatch = await bcrypt.compare(password.trim(), user.password);
-      console.log('Password comparison result:', isMatch);
-
       if (!isMatch) {
-          return res.status(401).json({ message: 'Invalid credentials' });
+        return res.status(401).json({ message: 'Invalid credentials' });
       }
-
-      // Генерация токенов при успешном входе
+  
       const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
       const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-
+  
       const token = new Token({ userId: user._id, token: refreshToken });
       await token.save();
-
+  
+    
+      
+  
+      // Устанавливаем accessToken в куки
       res.cookie('accessToken', accessToken, {
-          httpOnly: true,
-          secure: true,
-          maxAge: 3600000,
+        httpOnly: true,
+        secure: true,
+        maxAge: 3600000, // 1 час
+        sameSite: 'Strict',
       });
-
-      res.json({ refreshToken, accessToken });
-  } catch (error) {
+  
+      // Отправляем refreshToken в ответе
+      res.json({ refreshToken, accessToken, });
+    } catch (error) {
       console.error('Ошибка при логине:', error);
       res.status(500).json({ message: 'Ошибка сервера' });
-  }
-};
-
+    }
+  };
+  
 
 
 
