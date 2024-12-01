@@ -60,7 +60,7 @@ exports.login = async (req, res) => {
       });
   
       // Отправляем refreshToken в ответе
-      res.json({ refreshToken, accessToken, });
+      res.json({ refreshToken, });
     } catch (error) {
       console.error('Ошибка при логине:', error);
       res.status(500).json({ message: 'Ошибка сервера' });
