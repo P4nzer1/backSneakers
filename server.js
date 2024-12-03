@@ -5,7 +5,7 @@ const xssClean = require('xss-clean');
 const corsMiddleware = require('./middleware/corsMiddleware');
 const cookieParser = require('cookie-parser');
 
-const errorHandler = require('./middleware/errorHandlerMiddleware');
+const handleError = require('./middleware/errorHandlerMiddleware');
 const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
 const cartRoutes = require('./routes/cartRoutes');
@@ -19,27 +19,28 @@ connectDB();
 
 const app = express();
 
-
 app.use(express.json());
 app.use(corsMiddleware);
+app.use(cookieParser());
 app.use(xssClean());
 
+app.get('/', (req, res) => {
+  res.send('Сервер работает успешно! Добро пожаловать на localhost:5000');
+});
 
-
-// Основные маршруты
 app.use('/home', homeRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/profile', profileRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api', profileRoutes);
+app.use('/api', adminRoutes);
 
 // Обработка ошибок
-app.use(errorHandler);
+app.use(handleError);
 
 if (require.main === module) {
-  const PORT = process.env.PORT || 6000;
+  const PORT = process.env.PORT || process.env.TEST_PORT || 0;
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
