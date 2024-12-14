@@ -25,7 +25,7 @@ app.use(cookieParser());
 app.use(xssClean());
 
 app.get('/', (req, res) => {
-  res.send('Сервер работает успешно! Добро пожаловать на localhost:5000');
+  res.send('Сервер работает успешно!');
 });
 
 app.use('/home', homeRoutes);
@@ -35,6 +35,8 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api', profileRoutes);
 app.use('/api', adminRoutes);
+app.use('/uploads', express.static('uploads'));
+
 
 // Обработка ошибок
 app.use(handleError);

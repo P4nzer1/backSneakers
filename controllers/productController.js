@@ -26,12 +26,15 @@ exports.getProductById = async (req, res) => {
 // Создание нового продукта
 exports.createProduct = async (req, res) => {
   try {
-    const { name, price, description, brand } = req.body;
+    const { name, price, description, brand , stock } = req.body;
+    const images = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
     const newProduct = new Product({
       name,
       price,
       description,
-      brand
+      brand,
+      stock,
+      images
     });
     await newProduct.save();
     res.status(201).json(newProduct);
