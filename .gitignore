@@ -1,4 +1,4 @@
+.env
 uploads/
 node_modules/
 scriptAddProducts/
-env/
