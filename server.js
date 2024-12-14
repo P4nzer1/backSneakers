@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const xssClean = require('xss-clean');
 const corsMiddleware = require('./middleware/corsMiddleware');
+const limiter = require('./middleware/rateLimiter');
 const cookieParser = require('cookie-parser');
 
 const handleError = require('./middleware/errorHandlerMiddleware');
@@ -19,15 +20,21 @@ connectDB();
 
 const app = express();
 
+// === Middleware ===
 app.use(express.json());
 app.use(corsMiddleware);
 app.use(cookieParser());
 app.use(xssClean());
+app.use('/api/', limiter);
 
 app.get('/', (req, res) => {
   res.send('Сервер работает успешно!');
 });
 
+// === Статические файлы ===
+app.use('/uploads', express.static('uploads'));
+
+// === Маршруты ===
 app.use('/home', homeRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
@@ -35,10 +42,8 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api', profileRoutes);
 app.use('/api', adminRoutes);
-app.use('/uploads', express.static('uploads'));
 
-
-// Обработка ошибок
+// === Обработка ошибок ===
 app.use(handleError);
 
 if (require.main === module) {
