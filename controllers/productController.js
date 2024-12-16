@@ -4,7 +4,16 @@ const Product = require('../models/Product');
 exports.getProducts = async (_, res) => {
   try {
     const products = await Product.find();
-    res.json(products);
+    
+    const transformedProducts = products.map(product => {
+      const productObj = product.toObject(); 
+      productObj.id = productObj._id;        
+      delete productObj._id;                
+      delete productObj.__v;                 
+      return productObj;
+    });
+
+    res.json(transformedProducts);
   } catch (error) {
     res.status(500).json({ message: 'Ошибка при получении продуктов', error });
   }
@@ -17,7 +26,13 @@ exports.getProductById = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: 'Продукт не найден' });
     }
-    res.json(product);
+
+    const productObj = product.toObject();
+    productObj.id = productObj._id;
+    delete productObj._id;
+    delete productObj.__v;
+
+    res.json(productObj);
   } catch (error) {
     res.status(500).json({ message: 'Ошибка при получении продукта', error });
   }
@@ -37,8 +52,25 @@ exports.createProduct = async (req, res) => {
       images
     });
     await newProduct.save();
-    res.status(201).json(newProduct);
+
+    // После сохранения также можно преобразовать:
+    const productObj = newProduct.toObject();
+    productObj.id = productObj._id;
+    delete productObj._id;
+    delete productObj.__v;
+
+    res.status(201).json(productObj);
   } catch (error) {
     res.status(500).json({ message: 'Ошибка при создании продукта', error });
+  }
+};
+
+exports.getBrands = async (req, res) => {
+  try {
+    const brands = await Product.distinct('brand');
+    res.json(brands);
+  } catch (error) {
+    console.error('Ошибка при получении брендов:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };

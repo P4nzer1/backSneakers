@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
 app.use('/uploads', express.static('uploads'));
 
 // === Маршруты ===
-app.use('/home', homeRoutes);
+app.use('/', homeRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
